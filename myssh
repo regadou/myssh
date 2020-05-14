@@ -1,0 +1,68 @@
+#!/bin/bash
+
+CONFIG=~/.myssh
+if [ -f $CONFIG ]; then
+   SERVICES="$(echo $(cat $CONFIG|cut -d : -f 2)|tr '\n' ' ')"
+else
+   echo "Missing configuration file: $CONFIG"
+   exit
+fi
+
+if [ -z "$1" ]; then
+   echo "Usage: myssh <service> [<command> ...]"
+   echo "Available services: $SERVICES"
+   echo "You can use any shell command to be executed on the remote host"
+   echo "You can also use the copy command to copy files between local and remote hosts"
+   exit
+fi
+
+AUTH="$(grep -Fm 1 ":$1:" $CONFIG|cut -d : -f 3)"
+KEYFILE="$(grep -Fm 1 ":$1:" $CONFIG|cut -d : -f 4)"
+if [ -z "$AUTH" ]; then
+   echo "Unknown servcie: $1"
+   echo "Available services: $SERVICES"
+   exit
+elif [ -f "$KEYFILE" ]; then
+   echo -n ""
+else
+   echo "Key file not found: $KEYFILE"
+   exit
+fi 
+
+if [ "$2" = "copy" ]; then
+   source=$3
+   target=$4
+   extra=$5
+   if [ -n "$extra" ]; then
+      echo "Too much parameters for copy command: only service, source and target are needed"
+   elif [ -z "$target" ]; then
+      if [ -z "$source" ]; then
+         echo "The copy command needs a source and a target file"
+      else
+         echo "Missing target file for copy command"
+      fi
+   elif [ -z "$source" ]; then
+      echo "Missing source file for copy command"
+   else
+      if [  $(echo $source|cut -c1) = "/" ]; then
+         if [  $(echo $target|cut -c1) = "/" ]; then
+            echo "Both source and target files start with /"
+            echo "You need one of them to not start with / to identify the local file"
+            exit
+         fi
+         source="$AUTH:$source"
+      elif [  $(echo $target|cut -c1) = "/" ]; then
+         target="$AUTH:$target"
+      else
+         echo "Neither source nor target files start with /"
+         echo "You need one of them to start with / to identify the remote file"
+         exit
+      fi
+      echo "copying $source to $target ..."
+      scp -i $KEYFILE $source $target
+   fi
+else
+   shift 1
+   ssh -i $KEYFILE $AUTH $@
+fi
+
