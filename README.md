@@ -24,5 +24,5 @@ To copy files between local and remote hosts, you can do the following:
    
 Copying files can be done in both directions. So in order to know which file is local and which one is remote, myssh will consider the file starting with / as being the remote one. If none or both files start with / then myssh will give you an error message. Because of this behavior, the local file is always going to be relative to the current directory. So make sure you cd into the local directory of your choice before issuing any myssh copy command.
 
-Also, please note that the copy command is explicitely named "copy" to distinguish it from "cp" which would execute a file copy from source to target on the remote host only.
+Also, please note that the copy command is explicitly named "copy" to distinguish it from "cp" which would execute a file copy from source to target on the remote host only.
 
