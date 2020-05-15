@@ -59,7 +59,7 @@ if [ "$2" = "copy" ]; then
          exit
       fi
       echo "copying $source to $target ..."
-      scp -i $KEYFILE $source $target
+      scp -ri $KEYFILE $source $target
    fi
 else
    shift 1
