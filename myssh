@@ -19,7 +19,7 @@ fi
 AUTH="$(grep -Fm 1 ":$1:" $CONFIG|cut -d : -f 3)"
 KEYFILE="$(grep -Fm 1 ":$1:" $CONFIG|cut -d : -f 4)"
 if [ -z "$AUTH" ]; then
-   echo "Unknown servcie: $1"
+   echo "Unknown service: $1"
    echo "Available services: $SERVICES"
    exit
 elif [ -f "$KEYFILE" ]; then
